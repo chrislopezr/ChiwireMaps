@@ -1,5 +1,5 @@
 
-The `include` folder contains custom header files that define various components and functionalities used throughout the Backcountry Beacon firmware. These files provide the foundational elements for handling tasks such as timing functions, managing middleware, and defining routes.
+The `include` folder contains custom header files that define various components and functionalities used throughout the Chiwire Maps firmware. These files provide the foundational elements for handling tasks such as timing functions, managing middleware, and defining routes.
 
 ## File Overview
 

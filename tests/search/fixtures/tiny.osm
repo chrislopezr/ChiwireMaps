@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Hand-made OpenStreetMap sample for the search builder tests. Two towns 11 km apart, both with a "Calle Mayor". -->
+<osm version="0.6" generator="hand">
+  <!-- Towns -->
+  <node id="1" lat="40.0000" lon="-3.0000"><tag k="place" v="town"/><tag k="name" v="Villa Alta"/></node>
+  <node id="2" lat="40.1000" lon="-3.1000"><tag k="place" v="village"/><tag k="name" v="Villa Baja"/></node>
+
+  <!-- Calle Mayor in Villa Alta: two pieces (ways 101, 102); node 12 is on the straight line between 11 and 13 -->
+  <node id="11" lat="40.0010" lon="-3.0010"/>
+  <node id="12" lat="40.0010" lon="-3.0000"/>
+  <node id="13" lat="40.0010" lon="-2.9990"/>
+  <node id="14" lat="40.0020" lon="-2.9990"/>
+  <way id="101"><nd ref="11"/><nd ref="12"/><nd ref="13"/><tag k="highway" v="residential"/><tag k="name" v="Calle Mayor"/></way>
+  <way id="102"><nd ref="13"/><nd ref="14"/><tag k="highway" v="residential"/><tag k="name" v="Calle Mayor"/></way>
+
+  <!-- Calle Mayor in Villa Baja -->
+  <node id="21" lat="40.1010" lon="-3.1010"/>
+  <node id="22" lat="40.1010" lon="-3.1000"/>
+  <way id="103"><nd ref="21"/><nd ref="22"/><tag k="highway" v="residential"/><tag k="name" v="Calle Mayor"/></way>
+
+  <!-- A street with an accent, and a named mountain path -->
+  <node id="31" lat="40.0030" lon="-3.0010"/>
+  <node id="32" lat="40.0030" lon="-3.0000"/>
+  <way id="104"><nd ref="31"/><nd ref="32"/><tag k="highway" v="residential"/><tag k="name" v="Calle de Peñalara"/></way>
+  <node id="33" lat="40.0500" lon="-3.0500"/>
+  <node id="34" lat="40.0600" lon="-3.0500"/>
+  <way id="105"><nd ref="33"/><nd ref="34"/><tag k="highway" v="path"/><tag k="name" v="Senda de los Pastores"/></way>
+  <!-- Unnamed road: not searchable -->
+  <way id="106"><nd ref="31"/><nd ref="11"/><tag k="highway" v="service"/></way>
+
+  <!-- House numbers: a node in Villa Alta, a building in Villa Alta, a node in Villa Baja -->
+  <node id="41" lat="40.0012" lon="-3.0000"><tag k="addr:street" v="Calle Mayor"/><tag k="addr:housenumber" v="12"/></node>
+  <node id="42" lat="40.0016" lon="-2.9992"/>
+  <node id="43" lat="40.0016" lon="-2.9988"/>
+  <node id="44" lat="40.0018" lon="-2.9988"/>
+  <node id="45" lat="40.0018" lon="-2.9992"/>
+  <way id="107"><nd ref="42"/><nd ref="43"/><nd ref="44"/><nd ref="45"/><nd ref="42"/>
+    <tag k="building" v="yes"/><tag k="addr:street" v="Calle Mayor"/><tag k="addr:housenumber" v="14B"/></way>
+  <node id="46" lat="40.1012" lon="-3.1005"><tag k="addr:street" v="Calle Mayor"/><tag k="addr:housenumber" v="3"/></node>
+
+  <!-- Points of interest -->
+  <node id="51" lat="40.0005" lon="-3.0005"><tag k="railway" v="subway_entrance"/><tag k="name" v="Sol"/></node>
+  <node id="52" lat="40.0400" lon="-3.0400"><tag k="military" v="bunker"/></node>
+  <node id="53" lat="40.0008" lon="-3.0002"><tag k="amenity" v="police"/><tag k="name" v="Comisaría Centro"/></node>
+  <node id="54" lat="40.0300" lon="-3.0300"/>
+  <node id="55" lat="40.0300" lon="-3.0200"/>
+  <node id="56" lat="40.0400" lon="-3.0200"/>
+  <node id="57" lat="40.0400" lon="-3.0300"/>
+  <way id="108"><nd ref="54"/><nd ref="55"/><nd ref="56"/><nd ref="57"/><nd ref="54"/>
+    <tag k="landuse" v="military"/><tag k="name" v="Base Militar El Goloso"/></way>
+  <node id="58" lat="40.8500" lon="-3.9500"><tag k="natural" v="peak"/><tag k="name" v="Peñalara"/><tag k="ele" v="2428"/></node>
+  <node id="59" lat="40.8400" lon="-3.9400"><tag k="amenity" v="drinking_water"/></node>
+  <node id="60" lat="40.8450" lon="-3.9450"><tag k="tourism" v="alpine_hut"/><tag k="name" v="Refugio Zabala"/></node>
+  <node id="61" lat="40.0006" lon="-3.0006"><tag k="railway" v="station"/><tag k="station" v="subway"/><tag k="name" v="Sol"/></node>
+
+  <!-- An unnamed peak: nothing to search for -->
+  <node id="62" lat="40.8600" lon="-3.9600"><tag k="natural" v="peak"/><tag k="ele" v="2100"/></node>
+
+  <!-- Outside the peninsula: left out -->
+  <node id="71" lat="39.5700" lon="2.6500"><tag k="amenity" v="police"/><tag k="name" v="Policía Palma"/></node>
+  <node id="72" lat="35.8900" lon="-5.3100"><tag k="amenity" v="police"/><tag k="name" v="Policía Ceuta"/></node>
+</osm>

@@ -13,13 +13,13 @@ CREATE_MIDDLEWARE(logRequest, {
 
     int headers = request->headers();
     for (int i = 0; i < headers; i++) {
-        AsyncWebHeader* h = request->getHeader(i);
+        const AsyncWebHeader* h = request->getHeader(i);
         Serial.printf("HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
     }
 
     int params = request->params();
     for (int i = 0; i < params; i++) {
-        AsyncWebParameter* p = request->getParam(i);
+        const AsyncWebParameter* p = request->getParam(i);
         if (p->isFile()) {
             Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
         } else if (p->isPost()) {
@@ -35,7 +35,7 @@ CREATE_MIDDLEWARE(logRequest, {
 
 CREATE_MIDDLEWARE(monitorResources, {
     size_t freeHeap = ESP.getFreeHeap();
-    const size_t criticalHeapThreshold = 170000; 
+    const size_t criticalHeapThreshold = 40000;
     if (freeHeap < criticalHeapThreshold) {
         Serial.printf("Free Heap: %u bytes. Sending 503\n", freeHeap);
         request->send(503, "text/plain", "Service Unavailable: Low Memory, Please Try Again Later");

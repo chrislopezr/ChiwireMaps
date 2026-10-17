@@ -10,10 +10,12 @@
 #include <ArduinoJson.h>
 #include <qrcode.h>
 #include <routes.h>
+#include "StatusLed.h"
+#include "capybara_icon.h"
 
 // Access point credentials
-const char* ssid = "topo-map";
-const char* password = "mapables"; // Set to "" for no password
+const char* ssid = "chiwire";
+const char* password = "aguacate"; // Set to "" for no password
 
 TFT_eSPI tft = TFT_eSPI();
 AsyncWebServer server(80);
@@ -25,6 +27,7 @@ bool displayNetwork = true;
 bool screenOn = true;
 long lastButtonPress = 0;
 long lastGpsUpdate = 0;
+bool startupError = false; // Set when setup() can't finish (e.g. SD card missing); shows red LED
 
 void IRAM_ATTR handleButtonPress() {
     buttonPressed = true;  // Set a flag indicating the button was pressed
@@ -43,6 +46,10 @@ void turnOnDisplay() {
 
 void setup() {
     Serial.begin(115200);
+    StatusLed::begin();
+    StatusLed::set(StatusLed::yellow); // Starting up
+    // GPS sends up to 10 fixes/s at 115200 baud; 2 KB covers pauses like screen redraws (default is 256 bytes)
+    Serial2.setRxBufferSize(2048);
     Serial2.begin(115200, SERIAL_8N1, 44, 43); // Initialize Serial2 for GPS on pins 44 (RX) and 43 (TX)
     
     pinMode(BTN_PIN, INPUT_PULLUP);
@@ -53,25 +60,28 @@ void setup() {
     tft.setRotation(4);
     tft.fillScreen(TFT_BLACK);
     digitalWrite(TFT_LEDA_PIN, 0);
+    // Start-up screen: the Chiwire Maps capybara; the network screen replaces it at the first refresh
+    tft.setSwapBytes(true); // The icon is stored as plain RGB565 numbers
+    tft.pushImage((tft.width() - capybara_icon_width) / 2, 30, capybara_icon_width, capybara_icon_height, capybara_icon);
     tft.setTextFont(1);
-    tft.setTextColor(TFT_RED);
-    tft.setTextSize(2);
-
-    tft.println();
-    tft.println("  YOU");
-    tft.println("  ARE");
-    tft.println("  OFF");
-    tft.println(" GRID.");
+    tft.setTextSize(1);
+    tft.setTextColor(TFT_WHITE);
+    tft.drawCentreString("Chiwire", tft.width() / 2, 104, 1);
+    tft.drawCentreString("Maps", tft.width() / 2, 116, 1);
     
 
     SD_MMC.setPins(SD_MMC_CLK_PIN, SD_MMC_CMD_PIN, SD_MMC_D0_PIN, SD_MMC_D1_PIN, SD_MMC_D2_PIN, SD_MMC_D3_PIN);
     if (!SD_MMC.begin("/sdcard", false, false, 40000000, 16)) {
         Serial.println("Card Mount Failed");
+        startupError = true;
+        StatusLed::set(StatusLed::red);
         return;
     }
     uint8_t cardType = SD_MMC.cardType();
     if (cardType == CARD_NONE) {
         Serial.println("No SD card attached");
+        startupError = true;
+        StatusLed::set(StatusLed::red);
         return;
     }
 
@@ -107,6 +117,16 @@ void readGPS() {
     if(gps.location.isUpdated()){
         lastGpsUpdate = millis();
     }
+}
+
+// GPS link health in the serial log: chars/s should match what the module sends, failed should stay ~0
+void logGpsStats() {
+    static uint32_t lastChars = 0;
+    uint32_t chars = gps.charsProcessed();
+    Serial.printf("GPS: %lu chars/s, %lu sentences ok, %lu failed checksum\n",
+                  (unsigned long)((chars - lastChars) / 10), (unsigned long)gps.passedChecksum(),
+                  (unsigned long)gps.failedChecksum());
+    lastChars = chars;
 }
 
 void checkForStaleConnections(){
@@ -145,6 +165,9 @@ void logHeap(){
         int qrX = (tft.width() - qrSize) / 2;
         int qrY = tft.height() - qrSize - 10; // 10 pixels padding from bottom
 
+        // White quiet zone around the code so scanners can find its edges
+        tft.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, TFT_WHITE);
+
         // Draw the QR code on the display
         for (int y = 0; y < qrcode.size; y++) {
             for (int x = 0; x < qrcode.size; x++) {
@@ -168,6 +191,9 @@ void logHeap(){
         int qrSize = qrcode.size * 2; // Scale the QR code size by 2
         int qrX = (tft.width() - qrSize) / 2;
         int qrY = 10; // 10 pixels padding from top
+
+        // White quiet zone around the code so scanners can find its edges
+        tft.fillRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, TFT_WHITE);
 
         // Draw the QR code on the display
         for (int y = 0; y < qrcode.size; y++) {
@@ -209,17 +235,33 @@ void checkIfScreenInactive(){
     }
 }
 
+// LED priority: red (error) > blue (device on Wi-Fi) > green (GPS position fix) > off
+void updateStatusLed() {
+    if (startupError) {
+        StatusLed::set(StatusLed::red);
+    } else if (WiFi.softAPgetStationNum() > 0) {
+        StatusLed::set(StatusLed::blue);
+    } else if (gps.location.isValid() && gps.location.age() < 5000) {
+        StatusLed::set(StatusLed::green);
+    } else {
+        StatusLed::set(StatusLed::off);
+    }
+}
+
 FunctionTimer screnMonitor(checkIfScreenInactive, 10000);
+FunctionTimer ledMonitor(updateStatusLed, 1000);
 FunctionTimer buttonMonitor(buttonHandler,100);
 FunctionTimer heapMonitor(logHeap, 10000);
 FunctionTimer connectionMonitor(&checkForStaleConnections, 1000);
-FunctionTimer gpsReader(readGPS, 1000); // Read GPS data every second
+FunctionTimer gpsStats(logGpsStats, 10000);
 
 void loop() {
     connectionMonitor.service();
     heapMonitor.service();
-    gpsReader.service();
+    readGPS(); // Every pass: emptying the UART often keeps NMEA sentences intact
+    gpsStats.service();
     buttonMonitor.service();
     screnMonitor.service();
+    ledMonitor.service();
     vTaskDelay(1); // Yield to the scheduler
 }

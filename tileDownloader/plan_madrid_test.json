@@ -1,0 +1,9 @@
+{
+    "_comment": "Debug set: ~4 x 4 km around Puerta del Sol, Madrid. All layers, raster to zoom 16, vector to 14. A few hundred tiles.",
+    "areas": {"madrid-centro": {"rect": [-3.73, 40.40, -3.68, 40.435]}},
+    "steps": [
+        {"layers": ["mtn", "pnoa", "base", "vector"], "areas": ["madrid-centro"], "zooms": [0, 14]},
+        {"layers": ["mtn", "pnoa", "base"], "areas": ["madrid-centro"], "zooms": [15, 16]}
+    ],
+    "avg_kb": {"mtn": 16, "pnoa": 15, "base": 8, "vector": 50}
+}

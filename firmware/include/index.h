@@ -1,270 +1,91 @@
+// Map page shell. The map application itself (nav.js, geo.js, wmm.js) lives on the SD card,
+// so it can be updated by copying files instead of reflashing.
 const char index_html[] PROGMEM = R"rawliteral(
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Map Tiles</title>
-    <link rel="stylesheet" href="leaflet.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Chiwire Maps</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <link rel="stylesheet" href="/leaflet.css">
     <style>
-        #map {
-            height: 100vh;
+        html, body { margin: 0; height: 100%; font-family: system-ui, Arial, sans-serif; }
+        body { display: flex; flex-direction: column; }
+        #map { flex: 1; min-height: 0; }
+        .emoji-icon { font-size: 30px; line-height: 1; }
+        .grid-label {
+            color: #b0006e; font: bold 11px/1 system-ui, Arial, sans-serif; white-space: nowrap;
+            text-shadow: 0 0 2px #fff, 0 0 2px #fff, 0 0 3px #fff;
         }
-        .emoji-icon {
-            font-size: 30px; /* Adjust the size of the emoji */
-            line-height: 1; /* Ensure the emoji is centered */
+        #crosshair {
+            position: absolute; left: 50%; top: 50%; z-index: 500; pointer-events: none;
+            transform: translate(-50%, -50%); font-size: 28px; color: #d00; text-shadow: 0 0 3px #fff;
         }
-        .info {
-            background: rgb(0, 0, 0);
-            padding: 15px;
-            z-index: 1000;
-            color: white;
-            display: flex;
-            flex-direction: column;
+        #mapWrap { position: relative; flex: 1; display: flex; min-height: 0; }
+        .north-box {
+            background: rgba(255, 255, 255, 0.9); border-radius: 6px; padding: 4px 6px;
+            font-size: 11px; line-height: 1.3; text-align: center; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         }
-        .info p {
-            margin: 5px 0; /* Adjust vertical space between paragraphs */
-            line-height: 1; /* Adjust line spacing within each paragraph */
-            padding: 0; /* Remove any default padding */
-            font-family: "Apple SD Gothic Neo";
-            font-size: small;
+        #panel {
+            background: #111; color: #fff; padding: 6px 10px; font-size: 13px; line-height: 1.35;
+            border-top: 3px solid #111;
         }
-        .info.error {
-            background: rgb(251, 145, 59);
+        #panel.error { border-top-color: #f39c12; }
+        #logo { float: right; width: 26px; height: 26px; }
+        #panel .big { font-size: 17px; font-weight: bold; letter-spacing: 0.5px; }
+        #panel small { color: #bbb; }
+        .buttons { display: flex; gap: 6px; margin-top: 5px; }
+        .buttons button, #gotoBox button {
+            flex: 1; background: #2d6cdf; color: #fff; border: 0; border-radius: 5px; padding: 8px 4px; font-size: 14px;
         }
-        /* Mobile styling */
-        @media (max-width: 768px) {
-            .info {
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                flex-direction: row;
-                justify-content: space-around;
-                box-sizing: border-box;
-            }
-
-            #map {
-                height: calc(100vh - 50px); /* Adjust map height to account for status bar */
-            }
+        #gotoBox { background: #222; padding: 8px; border-radius: 6px; margin-top: 6px; }
+        #gotoBox input { width: 100%; box-sizing: border-box; font-size: 16px; padding: 8px; border-radius: 4px; border: 0; }
+        #gotoBox .row { display: flex; gap: 6px; margin-top: 6px; }
+        #gotoError { color: #ff8a80; }
+        #toast {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000;
+            background: #333; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 13px; max-width: 85%;
         }
-
-        /* Desktop styling */
-        @media (min-width: 769px) {
-            .info {
-                position: absolute;
-                bottom: 10px;
-                left: 10px;
-                flex-direction: column;
-            }
-        }
-
-        /* Center button */
-        #centerButton {
-            position: absolute;
-            bottom: 70px;
-            right: 30px;
-            z-index: 1001;
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
-            display: none; /* Initially hidden */
-        }
-        #filesButton {
-            background-color: transparent; /* Match background with status */
-            color: white; /* Match text color */
-            border: none; /* Remove border */
-            cursor: pointer; /* Pointer cursor to indicate it's clickable */
-            font-family: "Apple SD Gothic Neo"; /* Match font family */
-            font-size: small; /* Match font size */
-            text-align: left; /* Align text to the left */
-            padding: 0; /* Match padding with status */
-            margin: 5px 0; /* Match margin with status */
-            line-height: 1; /* Match line height with status */
-            text-decoration: underline; /* Subtle underline to indicate it's clickable */
-        }
-        #filesButton:hover {
-            background-color: #0056b3;
-        }
+        [hidden] { display: none !important; }
     </style>
 </head>
 <body>
-<div id="map"></div>
-<button id="centerButton">🧭 Center</button>
-<div class="info" id="infoBox">
-    <p id="altitude">🏔️: N/A</p>
-    <p id="lastUpdate">⏱️: N/A</p>
-    <p id="satellites">🛰️: N/A</p>
-    <p><button id="filesButton" onclick="location.href='/files'">🗂️ Files</button></p>
+<div id="mapWrap">
+    <div id="map"></div>
+    <div id="crosshair" hidden>✛</div>
+    <div id="toast" hidden></div>
 </div>
-<script src="leaflet.js"></script>
-<script>
-    const host = window.location.hostname;
-    const tileQueue = [];
-    let isProcessingQueue = false;
-    let map, userMarker;
-    let currentLat, currentLng;
-    let mapCentered = true;
-
-    function extractCoordsFromUrl(url) {
-        const regex = /\/(\d+)\/(\d+)\/(\d+)\.png$/;
-        const matches = url.match(regex);
-        if (matches) {
-            const [_, z, x, y] = matches.map(Number); // Convert to numbers
-            return { z, x, y };
-        }
-        return null;
-    }
-
-    function loadTile(url, tile, done) {
-        console.log(`Loading tile: ${url}`);
-
-        tile.onload = function() {
-            console.log(`Tile loaded successfully: ${url}`);
-            done(null, tile);
-            setTimeout(processQueue, 100); // Wait before processing the next tile
-        };
-
-        tile.onerror = function() {
-            console.error(`Tile failed to load: ${url}`);
-            done('error', tile);
-            setTimeout(processQueue, 100); // Wait before processing the next tile
-        };
-
-        tile.src = url; // Start loading the image
-    }
-
-    function processQueue() {
-        if (isProcessingQueue || tileQueue.length === 0) return;
-
-        isProcessingQueue = true;
-
-        const { url, tile, done } = tileQueue.shift(); // Get the next item in the queue
-        loadTile(url, tile, function(error, tile) {
-            isProcessingQueue = false; // Allow the next item to be processed
-            done(error, tile);
-        });
-    }
-
-    L.TileLayer.Queued = L.TileLayer.extend({
-        createTile: function(coords, done) {
-            const url = this.getTileUrl(coords);
-            const tile = document.createElement('img');
-            console.log(`Queuing tile: ${url}`);
-            tileQueue.push({ url, tile, done }); // Add the tile load task to the queue
-            if (!isProcessingQueue) processQueue(); // Start processing if not already doing so
-            return tile;
-        }
-    });
-
-    L.tileLayer.queued = function(url, options) {
-        return new L.TileLayer.Queued(url, options);
-    };
-
-    function updateMapLocation(lat, lng) {
-        currentLat = lat;
-        currentLng = lng;
-
-        if (!map) {
-            map = L.map('map').setView([lat, lng], 13);
-            L.tileLayer.queued(`http://${host}/tiles/{z}/{x}/{y}.png`, {
-                maxZoom: 16,
-                tileSize: 256,
-                errorTileUrl: 'error.png'
-            }).addTo(map);
-
-            const emojiIcon = L.divIcon({
-                className: 'emoji-icon', // Custom class for styling if needed
-                html: '📍',
-                iconAnchor: [15, 30] // Adjust anchor to position the icon correctly
-            });
-
-            // Add the custom marker to the map
-            userMarker = L.marker([lat, lng], { icon: emojiIcon }).addTo(map);
-
-            // Detect when the user pans the map
-            map.on('move', () => {
-                if (!mapCentered) {
-                    document.getElementById('centerButton').style.display = 'block';
-                }
-            });
-
-            map.on('moveend', () => {
-                const center = map.getCenter();
-                if (Math.abs(center.lat - currentLat) > 0.001 || Math.abs(center.lng - currentLng) > 0.001) {
-                    mapCentered = false;
-                    document.getElementById('centerButton').style.display = 'block';
-                }
-            });
-        } else {
-            if (mapCentered) {
-                map.setView([lat, lng]);
-                userMarker.setLatLng([lat, lng]);
-            } else {
-                userMarker.setLatLng([lat, lng]);
-            }
-        }
-    }
-
-    function centerMapOnUser() {
-        if (map && currentLat !== undefined && currentLng !== undefined) {
-            map.setView([currentLat, currentLng], map.getZoom());
-            document.getElementById('centerButton').style.display = 'none';
-            mapCentered = true;
-        }
-    }
-
-    document.getElementById('centerButton').addEventListener('click', centerMapOnUser);
-
-    function getAccuracyFromHdop(hdop) {
-        const uere = 8; // Assume a typical UERE value in meters
-        return hdop * uere;
-    }
-
-    function updateInfoBox(location, diagnostics) {
-        const accuracy = getAccuracyFromHdop(location.hdop);
-        document.getElementById('altitude').textContent = `🏔️: ${location.altitude.toFixed(2)} m`;
-        document.getElementById('lastUpdate').textContent = `⏱️: ${location.last_update} sec`;
-        document.getElementById('satellites').textContent = `🛰️: ${location.satellites}`;
-    }
-
-    async function fetchDataAndUpdate() {
-        try {
-            const pingResponse = await fetch(`http://${host}/ping`);
-            if (!pingResponse.ok) {
-                infoBox.classList.add('error');
-            }else{
-                infoBox.classList.remove('error');
-            }
-            const locationResponse = await fetch(`http://${host}/location`);
-            const diagnosticsResponse = await fetch(`http://${host}/diagnostics`);
-            if (!locationResponse.ok || !diagnosticsResponse.ok) throw new Error(`HTTP error!`);
-
-            const location = await locationResponse.json();
-            const diagnostics = await diagnosticsResponse.json();
-
-            const userLat = location.latitude;
-            const userLng = location.longitude;
-
-            updateMapLocation(userLat, userLng);
-            updateInfoBox(location, diagnostics);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchDataAndUpdate();
-        setInterval(fetchDataAndUpdate, 2500); // Poll data every 5 seconds
-    });
-</script>
+<div id="panel">
+    <img id="logo" src="/icon-192.png" alt="Chiwire Maps">
+    <div id="rowSource">Starting…</div>
+    <div id="rowUtm" class="big">UTM …</div>
+    <div id="rowLatLon"></div>
+    <div id="rowMotion" hidden></div>
+    <div id="rowSun"></div>
+    <div id="rowTarget" hidden></div>
+    <div id="gotoBox" hidden>
+        <input id="gotoInput" type="text" autocomplete="off" autocapitalize="characters"
+               placeholder="30T 440300 4474260  or  40.4168, -3.7038">
+        <div id="gotoError"></div>
+        <div class="row">
+            <button id="gotoGo">Go</button><button id="gotoHere">Use here</button><button id="gotoClear">Clear target</button>
+        </div>
+        <small>UTM: 30T 440300 4474260 · Decimal: 40.4168, -3.7038 · DMS: 40°25'00"N 3°42'13"W (O = W)</small>
+    </div>
+    <div class="buttons">
+        <button id="gotoBtn">🎯 Go to</button>
+        <button onclick="location.href='/files'">🗂️ Files</button>
+    </div>
+</div>
+<script src="/leaflet.js"></script>
+<script src="/wmm.js"></script>
+<script src="/geo.js"></script>
+<script src="/marks.js"></script>
+<script src="/search.js"></script>
+<script src="/nav.js"></script>
 </body>
 </html>
-
-
 )rawliteral";

@@ -1,6 +1,6 @@
-# Backcountry Beacon Firmware Overview
+# Chiwire Maps Firmware Overview
 
-The Backcountry Beacon firmware transforms the LilyGo S3 USB dongle into a portable, offline mapping and file server. Developed using PlatformIO, this firmware integrates essential hardware components and software functionalities to support outdoor adventurers.
+The Chiwire Maps firmware transforms the LilyGo S3 USB dongle into a portable, offline mapping and file server. Developed using PlatformIO, this firmware integrates essential hardware components and software functionalities to support outdoor adventurers.
 
 ### Hardware Overview
 
@@ -13,8 +13,21 @@ The firmware is designed for the LilyGo S3 USB dongle, which includes:
 
 ### Webpage Loading
 
--   **Embedded HTML as `.h` Files:** The webpages, such as the map viewer and file browser, are stored as `.h` files within the firmware. This approach allows the entire web interface to be embedded directly in the device’s memory. As a result, there’s no need to modify the file system on the device after flashing, making development and updates simpler and more robust.
--   **Single Flash Process:** Since the web files are compiled into the firmware, the entire system is flashed to the device in one step, ensuring that everything is self-contained and ready to use without additional setup.
+-   **Page shells in the firmware:** `include/index.h` (the map page) and `include/files.h` (the Files page) are compiled into the firmware. Changing them needs a new build and flash.
+-   **The map app on the SD card:** the code that does the work (`nav.js`, `geo.js`, `marks.js`, `search.js`, `wmm.js`) is served from the SD card and runs in the phone's browser. Updating it only needs a file copy to the card. The dongle itself only serves files, so it stays within its small memory.
+
+### Routes
+
+-   `/` and `/files`: the map and Files pages. `/download?file=` sends a file from `/serve`.
+-   `/upload?dir=` (POST): uploads one file at a time into `/serve/<dir>`. It streams to `<name>.part` and renames it when complete; answers 400 (bad folder or name), 409 (file exists), 503 (another upload running) and 507 (not enough space, 1 MB always kept free).
+-   `/storage`: the card's `{total, used, free, maxUpload}` in bytes, measured once at start-up.
+-   `/location`: the GPS state as JSON. `/diagnostics`: free memory and uptime.
+-   `/tiles/...`, `/search/`, `/vector/`, `/lib/` and the app files: served from the SD card with cache headers.
+
+### Tests
+
+-   `include/pathutil.h` holds the pure helpers (safe paths and file names, sizes, URL and HTML escaping). They are tested on the PC with Unity: `~/.platformio/penv/bin/pio test -e native` (needs g++).
+-   `~/.platformio/penv/bin/pio run` builds the dongle firmware.
 
 ### Middleware System
 

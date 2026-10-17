@@ -5,9 +5,9 @@ const rawData = fs.readFileSync('partInfo.json');
 const parts = JSON.parse(rawData);
 
 // Start of README content
-let readmeContent = `# Backcountry Beacon: 3D Parts
+let readmeContent = `# Chiwire Maps: 3D Parts
 
-This repository contains all the 3D parts for the Backcountry Beacon project.  
+This repository contains all the 3D parts for the Chiwire Maps project.  
 Always make sure to pull the latest before starting a new build.  
 
 `;

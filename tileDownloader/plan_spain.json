@@ -1,0 +1,11 @@
+{
+    "_comment": "Chosen plan: whole peninsula to zoom 14 in all four layers; mountains + Community of Madrid to zoom 16 in the three raster layers. avg_kb = average IGN tile sizes measured on 10 sample points per zoom.",
+    "steps": [
+        {"layers": ["mtn", "pnoa", "base", "vector"], "areas": ["peninsula"], "zooms": [0, 14]},
+        {"layers": ["mtn", "pnoa", "base"],
+         "areas": ["pirineos", "cantabrica-picos", "sistema-central", "iberico-norte", "iberico-sur",
+                   "sierra-nevada", "cazorla-segura", "madrid"],
+         "zooms": [15, 16]}
+    ],
+    "avg_kb": {"mtn": 16, "pnoa": 15, "base": 8, "vector": 50}
+}

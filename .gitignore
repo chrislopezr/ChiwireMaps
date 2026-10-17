@@ -1,1 +1,24 @@
-tileDownloader/Alaska-tiles.json
+# Map tiles: tens of GB, re-downloadable with tileDownloader/spain_tiles.py (IGN, CC BY 4.0)
+sdCard/tiles/
+*.part
+tileDownloader/*.log
+tileDownloader/failed.txt
+
+# Search data: built from OpenStreetMap by tools/build_search.py (source re-downloadable)
+sdCard/search/
+tools/data/
+
+# The card's /serve folder holds the owner's own files; the guides are published in docs/guides/
+sdCard/serve/
+
+# Build output and dependencies
+firmware/.pio/
+node_modules/
+tools/.venv/
+
+# Editor, local settings and OS clutter
+firmware/.vscode/
+.vscode/
+firmware/.claude/settings.local.json
+.DS_Store
+__pycache__/

@@ -1,0 +1,16 @@
+{
+  "_comment": "Shared by the builder (Python) and the phone (search.js): [name, normalised text, words used for searching]. Street types, articles and saint prefixes are not used on their own.",
+  "cases": [
+    ["Calle de Peñalara", "calle de penalara", ["penalara"]],
+    ["Avda. de la Constitución", "avda de la constitucion", ["constitucion"]],
+    ["Plaça de Catalunya", "placa de catalunya", ["catalunya"]],
+    ["L'Hospitalet de Llobregat", "l hospitalet de llobregat", ["hospitalet", "llobregat"]],
+    ["Calle San Juan", "calle san juan", ["juan"]],
+    ["Santa María la Real", "santa maria la real", ["maria", "real"]],
+    ["Gran Vía", "gran via", ["gran"]],
+    ["Sol", "sol", ["sol"]],
+    ["Calle 1", "calle 1", ["1"]],
+    ["Calle", "calle", ["calle"]],
+    ["  Ruta   del  Cares ", "ruta del cares", ["cares"]]
+  ]
+}

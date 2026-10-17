@@ -1,0 +1,165 @@
+{
+ "source": "US Naval Observatory, Astronomical Applications API v4 (aa.usno.navy.mil/api/rstt/oneday, tz=0), fetched 2026-10-16",
+ "rows": [
+  {
+   "place": "Madrid",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "date": "2026-03-20",
+   "riseUtc": "06:18",
+   "setUtc": "18:27"
+  },
+  {
+   "place": "Madrid",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "date": "2026-06-21",
+   "riseUtc": "04:45",
+   "setUtc": "19:48"
+  },
+  {
+   "place": "Madrid",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "date": "2026-10-16",
+   "riseUtc": "06:27",
+   "setUtc": "17:34"
+  },
+  {
+   "place": "Madrid",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "date": "2026-12-21",
+   "riseUtc": "07:34",
+   "setUtc": "16:51"
+  },
+  {
+   "place": "A Coruna",
+   "lat": 43.3623,
+   "lon": -8.4115,
+   "date": "2026-03-20",
+   "riseUtc": "06:37",
+   "setUtc": "18:46"
+  },
+  {
+   "place": "A Coruna",
+   "lat": 43.3623,
+   "lon": -8.4115,
+   "date": "2026-06-21",
+   "riseUtc": "04:53",
+   "setUtc": "20:18"
+  },
+  {
+   "place": "A Coruna",
+   "lat": 43.3623,
+   "lon": -8.4115,
+   "date": "2026-10-16",
+   "riseUtc": "06:49",
+   "setUtc": "17:49"
+  },
+  {
+   "place": "A Coruna",
+   "lat": 43.3623,
+   "lon": -8.4115,
+   "date": "2026-12-21",
+   "riseUtc": "08:03",
+   "setUtc": "17:01"
+  },
+  {
+   "place": "Girona",
+   "lat": 41.9794,
+   "lon": 2.8214,
+   "date": "2026-03-20",
+   "riseUtc": "05:52",
+   "setUtc": "18:01"
+  },
+  {
+   "place": "Girona",
+   "lat": 41.9794,
+   "lon": 2.8214,
+   "date": "2026-06-21",
+   "riseUtc": "04:13",
+   "setUtc": "19:28"
+  },
+  {
+   "place": "Girona",
+   "lat": 41.9794,
+   "lon": 2.8214,
+   "date": "2026-10-16",
+   "riseUtc": "06:02",
+   "setUtc": "17:06"
+  },
+  {
+   "place": "Girona",
+   "lat": 41.9794,
+   "lon": 2.8214,
+   "date": "2026-12-21",
+   "riseUtc": "07:13",
+   "setUtc": "16:20"
+  },
+  {
+   "place": "Sevilla",
+   "lat": 37.3891,
+   "lon": -5.9845,
+   "date": "2026-03-20",
+   "riseUtc": "06:28",
+   "setUtc": "18:36"
+  },
+  {
+   "place": "Sevilla",
+   "lat": 37.3891,
+   "lon": -5.9845,
+   "date": "2026-06-21",
+   "riseUtc": "05:03",
+   "setUtc": "19:48"
+  },
+  {
+   "place": "Sevilla",
+   "lat": 37.3891,
+   "lon": -5.9845,
+   "date": "2026-10-16",
+   "riseUtc": "06:33",
+   "setUtc": "17:46"
+  },
+  {
+   "place": "Sevilla",
+   "lat": 37.3891,
+   "lon": -5.9845,
+   "date": "2026-12-21",
+   "riseUtc": "07:34",
+   "setUtc": "17:10"
+  },
+  {
+   "place": "Jaca",
+   "lat": 42.57,
+   "lon": -0.549,
+   "date": "2026-03-20",
+   "riseUtc": "06:06",
+   "setUtc": "18:14"
+  },
+  {
+   "place": "Jaca",
+   "lat": 42.57,
+   "lon": -0.549,
+   "date": "2026-06-21",
+   "riseUtc": "04:25",
+   "setUtc": "19:43"
+  },
+  {
+   "place": "Jaca",
+   "lat": 42.57,
+   "lon": -0.549,
+   "date": "2026-10-16",
+   "riseUtc": "06:16",
+   "setUtc": "17:19"
+  },
+  {
+   "place": "Jaca",
+   "lat": 42.57,
+   "lon": -0.549,
+   "date": "2026-12-21",
+   "riseUtc": "07:29",
+   "setUtc": "16:32"
+  }
+ ]
+}

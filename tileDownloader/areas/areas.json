@@ -1,0 +1,12 @@
+{
+    "_comment": "Download areas. 'polygon' = file in this folder with a lon/lat ring. 'rect' = [west, south, east, north], clipped to 'clip' (+ margin_km) so it stays inside Spain.",
+    "peninsula": {"polygon": "peninsula.json", "margin_km": 2},
+    "pirineos": {"rect": [-2.0, 42.0, 3.35, 43.4], "clip": "peninsula"},
+    "cantabrica-picos": {"rect": [-7.2, 42.5, -3.3, 43.45], "clip": "peninsula"},
+    "sistema-central": {"rect": [-7.0, 40.0, -3.0, 41.35], "clip": "peninsula"},
+    "iberico-norte": {"rect": [-3.4, 41.6, -1.6, 42.35], "clip": "peninsula"},
+    "iberico-sur": {"rect": [-2.4, 39.8, -0.7, 40.9], "clip": "peninsula"},
+    "sierra-nevada": {"rect": [-3.7, 36.85, -2.6, 37.25], "clip": "peninsula"},
+    "cazorla-segura": {"rect": [-3.1, 37.7, -2.3, 38.4], "clip": "peninsula"},
+    "madrid": {"rect": [-4.58, 39.88, -3.05, 41.17], "clip": "peninsula"}
+}
